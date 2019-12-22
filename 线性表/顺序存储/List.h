@@ -16,7 +16,7 @@ public:
     bool append(T m);//依次添加元素;
     int find(T& n);//遍历查找,返回元素n的下标,若不在元素中,则返回-1;
     bool remove(T& n);//删除元素n;
-    bool insert(int & i,  int & n);//在i位置插入i;
+    bool insert(int & i,  T & n);//在i位置插入i;
     void show();
     ~List();
 };
@@ -62,17 +62,48 @@ template <class T>
 bool List<T>::remove(T& n)
 {
     int index = find(n);
-    if(
-
-    )
+    if(index == -1)//长度为空,n不在线性表中;
+        return false;
+    
+    if(index == len - 1)//当n为最后一个元素
+    {
+        len--;
+        return true;
+    }
+    for(int j = index; j < len-1; j++){
+        lis[j] = lis[j+1];
+        }
+    len--;
+    return true;        
 }
-
-
 
 
 template <class T>
 List<T>::~List()
 {
     delete[] lis;
+}
+
+
+template <class T>
+bool List<T>::insert(int & i , T & n)
+{
+    /*
+    i:插入的位置,从１开始;
+    n:插入的数;
+    */
+    if(i < 1 || i > len + 1 || len == max_size)//i不合法或者数组达到最大容量　　　　　　　　
+        return false;
+    if(i == len + 1){
+         lis[i] = n;
+         return true;
+    }
+    //for(int j = i-1;j < len; j++)错误循环,这样只会把第n个数移到末尾
+    
+    for(int j = len - 1; j > i-2; j--)
+       lis[j+1] = lis[j];
+    
+    lis[i - 1] = n;
+    return true;
 }
 
