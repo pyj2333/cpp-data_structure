@@ -63,7 +63,7 @@ void LinkList<T>::show()
     //这里演示链表的操作
     int len = 0;
     Node<T>* p = head -> next;//p指向遍历时的当前节点
-    while(p)
+    while(p != nullptr)
     {
         //打印数据
         cout<<"第"<<++len<<"个节点"<< p -> data<<endl;
@@ -101,15 +101,24 @@ bool LinkList<T>::get(int i, T& data)
     Node<T>* ran = head;
     int j = 0;
     //遍历链表i次
-    while(ran->next && j < i)
+    //while(ran -> next && j < i)
+    //上面语句会出现段错误.我想要ran -> next为false时
+    //退出循环,可实际上应该是ran -> next为nullptr的时候
+    //退出,尽管nullptr本质上为0,但是应该是程序此时是先去访问
+    //这块内存的内容, 而这块内存禁止访问,所以出现段错误.
+    //程序判断条件在设计的时候,应该是直接比较,而不是编译器隐士转换
+    //后比较。同时,语句要清晰, 不要大多数情况下可以省略的东西.
+    //比如说,if(s) 与 if(s != 0)尽管意义一样,但是后者更加清晰明了。
+    //写代码不是用来装逼的！！！
+    while(ran->next != nullptr && j < i)
     {
         ran = ran -> next;
         j++;
     }
-    //----------------------------------------
+    
     if(i <= 0 || j < i)
         return false;
-    //-----------------------------------------
+
     data = ran -> data;
     return true;
 }
@@ -121,26 +130,26 @@ bool LinkList<T>::insert(int i, Node<T>* node)
     //1.首先遍历到第i个节点
     int j = 0;
     Node<T> * ran = head;
-    while(ran && j < i)
+    while(ran != nullptr && j < i)
     {
         j++;
         ran = ran -> next;
     }
     //2.对于i的检测
     //第i个是尾节点
-    if(ran -> next == NULL)
+    if(ran -> next == nullptr)
     {
         ran -> next = node; 
         return true;
     }
-    //-------------------------------------------
+
     //下标不合法
-    if(j < i)
+    if(j < i || i < 0)
     {
         cout<<"下标不合法"<<endl;
         return false;
     }
-    //--------------------------------------------
+
     //３.插入
     node -> next = ran -> next;
     ran -> next = node;
@@ -153,7 +162,7 @@ bool LinkList<T>::del(int i)
     //首先遍历到第i-1个节点
     Node<T>* ran = head;
     int j = 0;
-    while(ran && j < i-1)
+    while(ran -> next != nullptr && j < i-1)
     {
         ran = ran -> next;
         j++;
@@ -161,20 +170,27 @@ bool LinkList<T>::del(int i)
     //i是否合法的检测
     //尾节点如何删除
     //直接释放内存
-    if(ran -> next -> next == NULL)
+
+    if(j + 1 < i || i  <= 0)
+    //j为想要删除的前一个节点,i为用户想要删除的节点,
+    //下标不合法时,不是j < i;如果i合法,j仍然小于i
+    {
+        cout<<"删除失败\n";
+        return false;
+    }
+    
+    if(ran -> next -> next == nullptr)
     {
         delete ran->next;
-        ran -> next = NULL;//删除节点后,不会将自动将地址置为NULL;
+        ran -> next = nullptr;//删除节点后,不会将自动将地址置为NULL;
         return true;
     }
-    //-----------------------
-     //下标不合法
-    //-----------------------
 
     //第i个节点为中间节点删除
     Node<T>* p = ran -> next;//p为第i个节点的地址
     ran -> next = p -> next;
     delete p;//销毁内存需要放在最后面,因为前一行用到了p;
+    return true;
 }
 
 template <class T>
@@ -184,7 +200,7 @@ LinkList<T>::~LinkList()
     Node<T>* ran = head;
     int i = 0;
     Node<T>* p;
-    while(ran) 
+    while(ran != nullptr) 
     {
         p = ran;
         ran = ran -> next;
